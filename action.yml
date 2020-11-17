@@ -20,7 +20,9 @@ inputs:
     description: 'Commit Message'
     required: false
     default: "changed members file"
-
+outputs:
+  message:
+    description: "outcome of the program"
 runs:
   using: 'node12'
   main: 'index.js'

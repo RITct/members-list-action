@@ -1,13 +1,34 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+fs = require('fs');
+
+var octokit;
 
 const orgName = core.getInput('org-name');
 const authToken = process.env["GITHUB_TOKEN"];
-const octokit = github.getOctokit(authToken);
 const path = core.getInput("file-path");
 const name = core.getInput("commit-user-name");
 const email = core.getInput("commit-user-email");
-const message = core.getInput("commit-msg");
+const message = core.getInput("commit-msg")
+// Eliminate Owner name from repo;
+const repo = process.env["GITHUB_REPOSITORY"].split("/")[1]
+
+/*
+// For Testing Locally
+
+function get_test_values(){
+    return JSON.parse(fs.readFileSync('test_data.json', { encoding: 'utf8' }));
+}
+var test_data = get_test_values();
+const orgName = test_data["org_name"]
+const authToken = test_data["token"];
+const path = test_data["path"]
+const name = test_data["name"]
+const email = test_data["email"]
+const message = test_data["message"]
+const repo = test_data["repo"]
+*/
+
 
 async function getMemberData(teams){
     // TODO: find async forEach alternative
@@ -23,10 +44,12 @@ async function getMemberData(teams){
 }
 
 async function run(){
-    try{
+    try{       
         if (!authToken) {
             throw new Error("Token not found");
         }
+
+        octokit = github.getOctokit(authToken);
 
         teams_response =  await octokit.teams.list({
             org: orgName,
@@ -34,10 +57,7 @@ async function run(){
             err => console.log(err)
         );
         
-        member_data = getMemberData(teams_response.data);
-        
-        // Eliminate Owner name from repo
-        var repo = process.env["GITHUB_REPOSITORY"].split("/")[1]
+        member_data = await getMemberData(teams_response.data);
         
         json_file_response = await octokit.repos.getContent({
             owner: orgName,
@@ -66,13 +86,14 @@ async function run(){
                 }
             })
             .then(  
-                console.log("file updated")
+                core.setOutput("message", "File Updated"), console.log("file updated")
             )
             .catch(
                 err => console.log(err)
             );
         }
         else{
+            core.setOutput("message", "No Changes Detected");
             console.log("no changes");
         }
     }
