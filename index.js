@@ -11,7 +11,7 @@ const name = core.getInput("commit-user-name");
 const email = core.getInput("commit-user-email");
 const message = core.getInput("commit-msg")
 // Eliminate Owner name from repo;
-const repo = process.env["GITHUB_REPOSITORY"].split("/")[1]
+const [repo_owner, repo_name] = process.env["GITHUB_REPOSITORY"].split("/")
 
 /*
 // For Testing Locally
@@ -26,7 +26,8 @@ const path = test_data["path"]
 const name = test_data["name"]
 const email = test_data["email"]
 const message = test_data["message"]
-const repo = test_data["repo"]
+const repo_name = test_data["repo"]
+const repo_owner = orgName;
 */
 
 
@@ -37,7 +38,12 @@ async function getMemberData(teams){
         var resp = await octokit.teams.listMembersInOrg({
             org: orgName,
             team_slug: teams[i].slug,
-        });
+        }).catch(
+            err => {
+                core.error(err);
+                process.exit(1);
+            }
+        );
         member_data[teams[i].name] = resp.data
     }
     return member_data;
@@ -54,17 +60,23 @@ async function run(){
         teams_response =  await octokit.teams.list({
             org: orgName,
         }).catch(
-            err => console.log(err)
+            err => {
+                core.error(err);
+                process.exit(1);
+            }
         );
         
         member_data = await getMemberData(teams_response.data);
         
         json_file_response = await octokit.repos.getContent({
             owner: orgName,
-            repo: repo,
+            repo: repo_name,
             path: path,
         }).catch(
-            err => console.log(err)
+            err => {
+                core.error(err);
+                process.exit(1);
+            }
         );
         
         // github transfers files in base64
@@ -74,8 +86,8 @@ async function run(){
 
         if(prevContent != content){
             await octokit.repos.createOrUpdateFileContents({
-                owner: orgName,
-                repo: repo,
+                owner: repo_owner,
+                repo: repo_name,
                 message: message,
                 content: base64String,
                 path: path,
@@ -89,7 +101,10 @@ async function run(){
                 core.setOutput("message", "File Updated"), console.log("file updated")
             )
             .catch(
-                err => console.log(err)
+                err =>{
+                    core.error(err);
+                    process.exit(1);
+                }
             );
         }
         else{
