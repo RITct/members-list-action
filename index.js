@@ -69,7 +69,7 @@ async function run(){
         member_data = await getMemberData(teams_response.data);
         
         json_file_response = await octokit.repos.getContent({
-            owner: orgName,
+            owner: repo_owner,
             repo: repo_name,
             path: path,
         }).catch(
