@@ -1,5 +1,7 @@
 name: 'List Members'
-description: 'List members of an organization and group them by teams'
+description: "GitHub Action to generate an organization's members list as JSON"
+author: RITct
+
 inputs:
   org-name:  # id of input
     description: 'Organization Name'
@@ -8,7 +10,7 @@ inputs:
     description: 'Json file'
     required: false
     default: "members.json"
-  commit-user-name: 
+  commit-user-name:
     description: 'Commit Username'
     required: false
     default: "list-member-action"
@@ -22,7 +24,10 @@ inputs:
     default: "changed members file"
 outputs:
   message:
-    description: "outcome of the program"
+    description: "generated members json"
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: node12
+  main: dist/index.js
+branding:
+  icon: 'user'
+  color: 'blue'

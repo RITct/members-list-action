@@ -1,24 +1,25 @@
 {
-  "name": "list-members",
+  "name": "list-members-action",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "GitHub Action to generate an organization's members list as JSON",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\"",
+    "build": "parcel build  --no-source-maps --target=node --bundle-node-modules index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/UKnowWhoIm/list-members.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["github","action"],
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/UKnowWhoIm/list-members/issues"
   },
   "homepage": "https://github.com/UKnowWhoIm/list-members#readme",
   "dependencies": {
     "@actions/core": "^1.2.6",
-    "@actions/github": "^4.0.0"
+    "@actions/github": "^4.0.0",
+    "parcel-bundler": "^1.12.4"
   }
 }
