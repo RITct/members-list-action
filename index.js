@@ -35,13 +35,10 @@ async function getMemberData(teams){
     let memberData = {};
     for(var i=0; i < teams.length; i++){
         var resp = await octokit.teams.listMembersInOrg({
-            org: orgName,
-            team_slug: teams[i].slug,
+            'org': orgName,
+            'team_slug': teams[i].slug,
         }).catch(
-            err => {
-                core.error(err);
-                process.exit(1);
-            }
+            err => process.exit(1)
         );
         memberData[teams[i].name] = resp.data;
     }
@@ -68,9 +65,9 @@ async function run(){
         memberData = await getMemberData(teamsResponse.data);
         
         jsonFileResponse = await octokit.repos.getContent({
-            owner: repoOwner,
-            repo: repoName,
-            path: path,
+            'owner': repoOwner,
+            'repo': repoName,
+            'path': path,
         }).catch(
             err => {
                 core.error(err);
@@ -85,15 +82,15 @@ async function run(){
 
         if(prevContent !== content){
             await octokit.repos.createOrUpdateFileContents({
-                owner: repoOwner,
-                repo: repoName,
-                message: message,
-                content: base64String,
-                path: path,
-                sha: jsonFileResponse.data.sha,
-                committer: {
-                    name: name,
-                    email: email
+                'owner': repoOwner,
+                'repo': repoName,
+                'message': message,
+                'content': base64String,
+                'path': path,
+                'sha': jsonFileResponse.data.sha,
+                'committer': {
+                    'name': name,
+                    'email': email
                 }
             })
             .then(  
