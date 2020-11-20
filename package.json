@@ -4,14 +4,18 @@
   "description": "GitHub Action to generate an organization's members list as JSON",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\"",
+    "test": "npm run lint",
+    "lint": "jshint --exclude='node_modules/' *.js",
     "build": "parcel build  --no-source-maps --target=node --bundle-node-modules index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/UKnowWhoIm/list-members.git"
   },
-  "keywords": ["github","action"],
+  "keywords": [
+    "github",
+    "action"
+  ],
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/UKnowWhoIm/list-members/issues"
@@ -20,6 +24,7 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0",
+    "jshint": "^2.12.0",
     "parcel-bundler": "^1.12.4"
   }
 }
