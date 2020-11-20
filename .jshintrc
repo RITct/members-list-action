@@ -1,7 +1,7 @@
 {
   "node": true,
   "esversion": 9,
-  "camelcase": false,
+  "camelcase": true,
   "curly": true,
   "eqeqeq": true,
   "evil": true,
