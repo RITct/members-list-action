@@ -4,6 +4,7 @@ fs = require('fs');
 
 var octokit;
 
+
 const orgName = core.getInput('org-name');
 const authToken = process.env.GITHUB_TOKEN;
 const path = core.getInput('file-path');
@@ -12,9 +13,8 @@ const email = core.getInput('commit-user-email');
 const message = core.getInput('commit-msg');
 const [repoOwner, repoName] = process.env.GITHUB_REPOSITORY.split('/');
 
-/*
 // For Testing Locally
-
+/*
 function get_test_values(){
     return JSON.parse(fs.readFileSync('test_data.json', { encoding: 'utf8' }));
 }
@@ -30,19 +30,17 @@ const repoName = test_data['repo'];
 */
 
 
-async function getMemberData(teams){
-    // TODO: find async forEach alternative
-    let memberData = {};
-    for(var i=0; i < teams.length; i++){
-        var resp = await octokit.teams.listMembersInOrg({
-            'org': orgName,
-            'team_slug': teams[i].slug,
-        }).catch(
-            err => process.exit(1)
-        );
-        memberData[teams[i].name] = resp.data;
-    }
-    return memberData;
+async function getMemberData(team){
+    let resp = await octokit.teams.listMembersInOrg({
+        'org': orgName,
+        'team_slug': team,
+    }).catch(
+        err => {
+            core.error(err)
+            process.exit(1);
+        }
+    );
+    return resp.data;
 }
 
 async function run(){
@@ -53,18 +51,21 @@ async function run(){
 
         octokit = github.getOctokit(authToken);
 
-        teamsResponse =  await octokit.teams.list({
-            org: orgName,
+        let teamsResponse =  await octokit.teams.list({
+            'org': orgName,
         }).catch(
             err => {
                 core.error(err);
                 process.exit(1);
             }
         );
+        let teams = teamsResponse.data;
+        let memberData = {};
+
+        for(let i=0; i < teams.length; i++)
+            memberData[teams[i].name] = await getMemberData(teams[i].name)
         
-        memberData = await getMemberData(teamsResponse.data);
-        
-        jsonFileResponse = await octokit.repos.getContent({
+        let jsonFileResponse = await octokit.repos.getContent({
             'owner': repoOwner,
             'repo': repoName,
             'path': path,
@@ -76,9 +77,9 @@ async function run(){
         );
         
         // github transfers files in base64
-        prevContent = Buffer.from(jsonFileResponse.data.content, 'base64').toString('ascii');
-        content = JSON.stringify(memberData);
-        base64String = Buffer.from(content).toString('base64');
+        let prevContent = Buffer.from(jsonFileResponse.data.content, 'base64').toString('ascii');
+        let content = JSON.stringify(memberData);
+        let base64String = Buffer.from(content).toString('base64');
 
         if(prevContent !== content){
             await octokit.repos.createOrUpdateFileContents({
