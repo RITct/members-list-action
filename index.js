@@ -1,6 +1,5 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-fs = require('fs');
 
 var octokit;
 
@@ -15,6 +14,7 @@ const [repoOwner, repoName] = process.env.GITHUB_REPOSITORY.split('/');
 
 // For Testing Locally
 /*
+const fs = require('fs');
 function get_test_values(){
     return JSON.parse(fs.readFileSync('test_data.json', { encoding: 'utf8' }));
 }
@@ -36,7 +36,7 @@ async function getMemberData(team){
         'team_slug': team,
     }).catch(
         err => {
-            core.error(err)
+            core.error(err);
             process.exit(1);
         }
     );
@@ -62,8 +62,9 @@ async function run(){
         let teams = teamsResponse.data;
         let memberData = {};
 
-        for(let i=0; i < teams.length; i++)
-            memberData[teams[i].name] = await getMemberData(teams[i].name)
+        for(let i=0; i < teams.length; i++){
+            memberData[teams[i].name] = await getMemberData(teams[i].name);
+        }
         
         let jsonFileResponse = await octokit.repos.getContent({
             'owner': repoOwner,
