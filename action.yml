@@ -1,32 +1,22 @@
 name: 'List Members'
-description: "GitHub Action to generate an organization's members list as JSON"
-author: RITct
+description: "GitHub Action to randomly select a number of an organization's members use in other actions. Forked from github.com/RITct/members-list-action"
+author: RITct, thatsanicehat
 
 inputs:
   org-name:  # id of input
     description: 'Organization Name'
     required: true
-  file-path: #id of input
-    description: 'Json file'
-    required: false
-    default: "members.json"
-  commit-user-name:
-    description: 'Commit Username'
-    required: false
-    default: "list-member-action"
-  commit-user-email:
-    description: 'Commit Email'
-    required: false
-    default: "listaction@noreply.com"
-  commit-msg:
-    description: 'Commit Message'
-    required: false
-    default: "changed members file"
+  role-name:
+    description: 'Name of role'
+    required: true
+  user-limit:
+    description: 'How many users to select at random'
+    required: true
 outputs:
-  message:
-    description: "generated members json"
+  users:
+    description: "Comma-separated list of users"
 runs:
-  using: node12
+  using: node16
   main: dist/index.js
 branding:
   icon: 'user'

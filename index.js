@@ -5,12 +5,9 @@ var octokit;
 
 
 const orgName = core.getInput('org-name');
+const teamName = core.getInput('team-name') || null;
 const authToken = process.env.GITHUB_TOKEN;
-const path = core.getInput('file-path');
-const name = core.getInput('commit-user-name');
-const email = core.getInput('commit-user-email');
-const message = core.getInput('commit-msg');
-const [repoOwner, repoName] = process.env.GITHUB_REPOSITORY.split('/');
+const limit = core.getInput('user-limit')
 
 // For Testing Locally
 /*
@@ -20,6 +17,7 @@ function get_test_values(){
 }
 var test_data = get_test_values();
 const orgName = test_data['org_name'];
+const orgName = test_data['team_name'];
 const authToken = test_data['token'];
 const path = test_data['path'];
 const name = test_data['name'];
@@ -44,71 +42,20 @@ async function getMemberData(team){
 }
 
 async function run(){
-    try{       
+    try{
         if (!authToken) {
             throw new Error('Token not found');
         }
 
         octokit = github.getOctokit(authToken);
 
-        let teamsResponse =  await octokit.teams.list({
-            'org': orgName,
-        }).catch(
-            err => {
-                core.error(err);
-                process.exit(1);
-            }
-        );
-        let teams = teamsResponse.data;
-        let memberData = {};
+        let allUsers = [];
 
-        for(let i=0; i < teams.length; i++){
-            memberData[teams[i].name] = await getMemberData(teams[i].name);
-        }
-        
-        let jsonFileResponse = await octokit.repos.getContent({
-            'owner': repoOwner,
-            'repo': repoName,
-            'path': path,
-        }).catch(
-            err => {
-                core.error(err);
-                process.exit(1);
-            }
-        );
-        
-        // github transfers files in base64
-        let prevContent = Buffer.from(jsonFileResponse.data.content, 'base64').toString('ascii');
-        let content = JSON.stringify(memberData);
-        let base64String = Buffer.from(content).toString('base64');
+        allUsers = await getMemberData(teamName).sort(() => 0.5 - Math.random());
 
-        if(prevContent !== content){
-            await octokit.repos.createOrUpdateFileContents({
-                'owner': repoOwner,
-                'repo': repoName,
-                'message': message,
-                'content': base64String,
-                'path': path,
-                'sha': jsonFileResponse.data.sha,
-                'committer': {
-                    'name': name,
-                    'email': email
-                }
-            })
-            .then(  
-                core.setOutput('message', 'File Updated'), console.log('file updated')
-            )
-            .catch(
-                err =>{
-                    core.error(err);
-                    process.exit(1);
-                }
-            );
-        }
-        else{
-            core.setOutput('message', 'No Changes Detected');
-            console.log('no changes');
-        }
+        let selectedUsers = allUsers.slice(0, limit);
+
+        core.setOutput('users', selectedUsers.join(','))
     }
     catch (error) {
         core.setFailed(error.message);
