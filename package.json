@@ -10,17 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UKnowWhoIm/list-members.git"
+    "url": "git+https://github.com/homechef/members-list-action.git"
   },
   "keywords": [
     "github",
     "action"
   ],
   "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/UKnowWhoIm/list-members/issues"
-  },
-  "homepage": "https://github.com/UKnowWhoIm/list-members#readme",
+  "homepage": "https://github.com/homechef/members-list-action#readme",
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0",
